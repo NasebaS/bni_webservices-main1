@@ -102,7 +102,7 @@ router.delete("/:entry_id", (req, res) => {
      
       res.status(500).json({ message: "Error Deleting Expense Entry",err });
     } else {
-      console.log("Query Result:", result);
+      // console.log("Query Result:", result);
       if (result.affectedRows > 0) {
         res.status(200).json({ message: "Expense Entry deleted successfully" });
       } else {

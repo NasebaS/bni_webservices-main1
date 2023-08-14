@@ -95,7 +95,7 @@ router.delete("/:ledgerId", (req, res) => {
       console.error("Error updating ledger status:", err);
       res.status(500).json({ message: "Error deleting ledger status" });
     } else {
-      console.log("Query Result:", result);
+      // console.log("Query Result:", result);
       if (result.affectedRows > 0) {
         res.status(200).json({ message: "Ledger deleted successfully" });
       } else {
