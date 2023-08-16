@@ -16,7 +16,6 @@ const getLedgerRoute = require("./routes/ledger/get-ledger");
 const getLedgerSummaryRoute = require("./routes/ledger/get-ledger-summary");
 
 const ledgerRoutes = require("./routes/ledger/ledger-routes");
-const ledgerNames = require("./routes/ledgernames");
 const incomeExpenseRoutes = require("./routes/incomeexpense/incomeexpense-routes");
 
 
@@ -48,7 +47,6 @@ app.use("/mirthApi", MirthRoute);
 app.use("/mirthCollectionApi", MirthCollectionRoute);
 
 app.use("/api/ledger", ledgerRoutes);
-app.use("/ledgernames", ledgerNames);
 app.use("/api/expense", incomeExpenseRoutes);
 
 app.listen(3000);
