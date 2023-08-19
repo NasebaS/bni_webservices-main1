@@ -33,6 +33,26 @@ router.post("/", (req, res) => {
     const { ledger_name, ledger_type } = req.body;
     const status = 'Active';
     mysqlConnection.query(
+      "SELECT * FROM ledger_master WHERE ledger_name = ? AND status='Active'",
+      [ledger_name],
+      (checkErr, checkResult) => {
+        if (checkErr) {
+          console.log(checkErr);
+          let response = {
+            status: APIResponse.ServerError,
+            message: "Error checking ledger name"
+          };
+          res.send(response);
+        } else {
+          if (checkResult.length > 0) {
+               let response = {
+              status: APIResponse.BadRequest,
+              message: "Ledger name already exists"
+            };
+            res.send(response);
+          } else {
+            
+    mysqlConnection.query(
       "INSERT INTO ledger_master (ledger_name, ledger_type,status) VALUES (?, ?, ?)",
       [ledger_name, ledger_type,status],
       (err, result) => {
@@ -53,35 +73,59 @@ router.post("/", (req, res) => {
            res.send(response);
         }
       }
-    );
+    );}}})
 });
 
 // Update a ledger
 router.put("/:ledgerId", (req, res) => {
-    const ledgerId = req.params.ledgerId;
-    const { ledger_name, ledger_type, status } = req.body;
-    mysqlConnection.query(
-      "UPDATE ledger_master SET ledger_name=?, ledger_type=?, status=? WHERE ledger_id=?",
-      [ledger_name, ledger_type, status, ledgerId],
-      (err, result) => {
-        if (err) {
-          console.log(err)
-          let response = {
-            "status": APIResponse.ServerError,
-            message: "Error updating ledger"
-           }
-       
-           res.send(response);
-        }  else {
-         let response = {
-            "status": APIResponse.Success,
-            message: "Ledger updated successfully"
-           }
-        
-           res.send(response);
+  const ledgerId = req.params.ledgerId;
+  const { ledger_name, ledger_type, status } = req.body;
+
+  mysqlConnection.query(
+    "SELECT * FROM ledger_master WHERE ledger_name = ? AND ledger_id <> ? AND status=''",
+    [ledger_name, ledgerId],
+    (checkErr, checkResult) => {
+      if (checkErr) {
+        console.log(checkErr);
+        let response = {
+          status: APIResponse.ServerError,
+          message: "Error checking ledger name"
+        };
+        res.send(response);
+      } else {
+        if (checkResult.length > 0) {
+             let response = {
+            status: APIResponse.BadRequest,
+            message: "Ledger name already exists"
+          };
+          res.send(response);
+        } else {
+          
+          mysqlConnection.query(
+            "UPDATE ledger_master SET ledger_name=?, ledger_type=?, status=? WHERE ledger_id=?",
+            [ledger_name, ledger_type, status, ledgerId],
+            (updateErr, updateResult) => {
+              if (updateErr) {
+                console.log(updateErr);
+                let response = {
+                  status: APIResponse.ServerError,
+                  message: "Error updating ledger"
+                };
+                res.send(response);
+              } else {
+                let response = {
+                  status: APIResponse.Success,
+                  message: "Ledger updated successfully"
+                };
+                res.send(response);
+              }
+            }
+          );
         }
-      });
-    });
+      }
+    }
+  );
+});
 
 // Delete a ledger
 router.delete("/:ledgerId", (req, res) => {

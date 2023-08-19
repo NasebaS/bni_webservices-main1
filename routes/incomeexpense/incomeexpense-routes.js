@@ -8,36 +8,40 @@ const APIResponse = {
   Failed: 1,
   ServerError: 2
 }
-const getExpenseList = 'SELECT * FROM income_expense_entry ';
+
 
 router.get("/", (req, res) => {
-    mysqlConnection.query(getExpenseList, (err, expenseRows) => {
-      if (err) {
-        let response = {
-          "status": APIResponse.ServerError,
-          "expenseList": []
-      }
+  const getExpenseList = 'SELECT * FROM income_expense_entry ORDER BY entry_id DESC';
+ 
+  
+  mysqlConnection.query(getExpenseList, (err, expenseRows) => {
+    
+    if (err) {
+      let response = {
+        "status": APIResponse.ServerError,
+        "expenseList": [],
+        "error":err
+      };
       res.send(response);
-      } else {
-        let response = {
-          "status": APIResponse.Success,
-          "expenseList": expenseRows
-      }
+    } else {
+      let response = {
+        "status": APIResponse.Success,
+        "expenseList": expenseRows
+      };
       res.send(response);
-      }
-    });
+    }
+  });
 });
 
 // Create a new expense entry
 router.post("/", (req, res) => {
-    const { ledger_id,entry_date, refnum, ledgername, income, amount, notes } = req.body;
+    const { ledger_id,entry_date, refnum, ledgername, type, amount, notes } = req.body;
   
-    // Parse the date string using moment.js
-    // const parsedDate = moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD');
+ 
     const formattedEntryDate = entry_date.slice(0, 10);
     mysqlConnection.query(
-      "INSERT INTO income_expense_entry (ledger_id,entry_date, refnum, ledgername, income, amount, notes) VALUES (?,?, ?, ?, ?, ?, ?)",
-      [ledger_id,formattedEntryDate, refnum, ledgername, income, amount, notes],
+      "INSERT INTO income_expense_entry (ledger_id,entry_date, refnum, ledgername, type, amount, notes) VALUES (?,?, ?, ?, ?, ?, ?)",
+      [ledger_id,formattedEntryDate, refnum, ledgername, type, amount, notes],
       (err, result) => {
         if (err) {
           console.log(err);
@@ -63,12 +67,12 @@ router.post("/", (req, res) => {
 
 router.put("/:entry_id", (req, res) => {
   const entry_id = req.params.entry_id;
-  const { ledger_id, entry_date, refnum, ledgername, income, amount, notes } = req.body;
+  const { ledger_id, entry_date, refnum, ledgername, type, amount, notes } = req.body;
 
   mysqlConnection.query(
-    "UPDATE income_expense_entry SET ledger_id=?, entry_date=?, refnum=?, ledgername=?, income=?, amount=?, notes=? WHERE entry_id=?",
+    "UPDATE income_expense_entry SET ledger_id=?, entry_date=?, refnum=?, ledgername=?, type=?, amount=?, notes=? WHERE entry_id=?",
 
-    [ledger_id, entry_date, refnum, ledgername, income, amount, notes,entry_id],
+    [ledger_id, entry_date, refnum, ledgername, type, amount, notes,entry_id],
     (err, result) => {
       if (err) {
         console.log(err);
