@@ -11,23 +11,23 @@ const APIResponse = {
 
 
 router.post("/", (req, res) => {
-  const getledgerReportList = 'SELECT * FROM income_expense_entry ';
+  const getLedgerReportList = `
+    SELECT ledgername, SUM(amount) as amount,refnum,type
+    FROM income_expense_entry
+  `;
  
-  const { fromDate, toDate} = req.body;
-  let sqlQuery = getledgerReportList;
+  const { fromDate, toDate } = req.body;
+  let sqlQuery = getLedgerReportList;
 
   if (fromDate) {
-    // const formattedFromDate = (fromDate).format('YYYY-MM-DD');
     sqlQuery += ` WHERE entry_date >= '${fromDate}'`;
-  
   }
 
   if (toDate) {
-    // const formattedToDate = moment(toDate).format('YYYY-MM-DD');
     sqlQuery += `${fromDate ? ' AND' : ' WHERE'} entry_date <= '${toDate}'`;
- 
   }
 
+  sqlQuery += ` GROUP BY ledgername`;
  
   mysqlConnection.query(sqlQuery, (err, reportRows) => {
     console.log(sqlQuery)
@@ -45,8 +45,8 @@ router.post("/", (req, res) => {
       res.send(response);
     }
   });
- 
 });
+
 
 router.post("/weeklyfee", (req, res) => {
   
